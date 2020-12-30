@@ -2,6 +2,7 @@
 #include "olcPixelGameEngine.h"
 #include "box2d/box2d.h"
 #include "Renderer.h"
+#include "GameResources.h"
 
 namespace B2DOLC
 {
@@ -13,7 +14,7 @@ namespace B2DOLC
 
         void Run();
 
-        void AddObject(b2Body* body);
+        void AddObject(GameObject* body);
         bool OnUserCreate() override;
         bool OnUserUpdate(float fElapsedTime) override;
     private:
@@ -22,6 +23,6 @@ namespace B2DOLC
         b2World* _b2d_world;
         Renderer* _renderer;
 
-        std::list<b2Body*> _physics_objects;
+        std::list<GameObject*> _game_objects;
     };
 }

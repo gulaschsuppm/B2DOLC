@@ -51,32 +51,34 @@ namespace B2DOLC
         return screen_vec;
     }
 
-    void Renderer::DrawPolygon(b2Body* body, b2PolygonShape* shape)
+    void Renderer::DrawPolygon(GameObject* game_object, b2PolygonShape* shape)
     {
-        auto pos = body->GetPosition();
-        auto angle = body->GetAngle();
+        auto pos = game_object->body->GetPosition();
+        auto angle = game_object->body->GetAngle();
+        auto color = game_object->color;
 
         auto v0 = ToScreen(Rotate(pos + shape->m_vertices[0], angle));
         auto v1 = ToScreen(Rotate(pos + shape->m_vertices[1], angle));
         auto v2 = ToScreen(Rotate(pos + shape->m_vertices[2], angle));
         auto v3 = ToScreen(Rotate(pos + shape->m_vertices[3], angle));
-        _pge->DrawLine(v0, v1);
-        _pge->DrawLine(v1, v2);
-        _pge->DrawLine(v2, v3);
-        _pge->DrawLine(v3, v0);
+        _pge->DrawLine(v0, v1, color);
+        _pge->DrawLine(v1, v2, color);
+        _pge->DrawLine(v2, v3, color);
+        _pge->DrawLine(v3, v0, color);
     }
 
-    void Renderer::DrawCircle(b2Body* body, b2CircleShape* circle)
+    void Renderer::DrawCircle(GameObject* game_object, b2CircleShape* circle)
     {
-        auto pos = body->GetPosition();
+        auto pos = game_object->body->GetPosition();
+        auto color = game_object->color;
 
         auto center = ToScreen(pos);
-        _pge->DrawCircle(center, int(circle->m_radius), olc::GREEN);
+        _pge->DrawCircle(center, int(circle->m_radius), color);
     }
 
-    void Renderer::Draw(b2Body* body)
+    void Renderer::Draw(GameObject* game_object)
     {
-        auto fixture_list = body->GetFixtureList();
+        auto fixture_list = game_object->body->GetFixtureList();
         for (b2Fixture* f = fixture_list; f; f = f->GetNext())
         {
             auto type = f->GetType();
@@ -85,13 +87,13 @@ namespace B2DOLC
             case b2Shape::e_polygon:
             {
                 b2PolygonShape* poly = (b2PolygonShape*)f->GetShape();
-                DrawPolygon(body, poly);
+                DrawPolygon(game_object, poly);
                 break;
             }
             case b2Shape::e_circle:
             {
                 b2CircleShape* circle = (b2CircleShape*)f->GetShape();
-                DrawCircle(body, circle);
+                DrawCircle(game_object, circle);
                 break;
             }
             default:
