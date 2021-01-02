@@ -5,15 +5,21 @@
 
 namespace B2DOLC
 {
-    struct GameObject
+    class GameObject
     {
+    public:
+        virtual bool OnGameCreation(olc::PixelGameEngine* pge) { return true; }
+        virtual bool OnUserInput(float dt, olc::PixelGameEngine* pge, b2World* world) { return true; }
+
         b2Body* body;
         olc::Pixel color;
+        bool destroy;
     };
 
-    struct Brick : public GameObject
+    class Brick : public GameObject
     {
-        Brick(b2World* world, const b2Vec2& pos, bool vertical)
+    public:
+        Brick(b2World* world, const b2Vec2& pos, float length, float height)
         {
             assert(world);
             b2BodyDef brick_body_def;
@@ -22,37 +28,12 @@ namespace B2DOLC
             body = world->CreateBody(&brick_body_def);
 
             b2PolygonShape groundBox;
-            if (vertical)
-            {
-                groundBox.SetAsBox(10.0f, 20.0f);
-            }
-            else
-            {
-                groundBox.SetAsBox(20.0f, 10.0f);
-            }
+            groundBox.SetAsBox(length/2.0f, height/2.0f);
 
             body->CreateFixture(&groundBox, 0.0f);
 
             color = olc::RED;
-        }
-    };
-
-    struct Player : public GameObject
-    {
-        Player(b2World* world, const b2Vec2& pos)
-        {
-            assert(world);
-            b2BodyDef player_body_def;
-            player_body_def.position = pos;
-
-            body = world->CreateBody(&player_body_def);
-
-            b2PolygonShape groundBox;
-            groundBox.SetAsBox(5.0f, 30.0f);
-
-            body->CreateFixture(&groundBox, 0.0f);
-
-            color = olc::WHITE;
+            destroy = false;
         }
     };
 }

@@ -1,5 +1,6 @@
 #include "GameEngine.h"
 #include "box2d/box2d.h"
+#include "Player.h"
 
 namespace B2DOLC
 {
@@ -7,7 +8,7 @@ namespace B2DOLC
 
     void GameEngine::Run()
     {
-        if (Construct(256, 240, 4, 4))
+        if (Construct(1200, 800, 1, 1))
         {
             Start();
         }
@@ -22,8 +23,12 @@ namespace B2DOLC
     {
         _renderer = new Renderer();
         _renderer->SetPGE(this);
+        // where to draw the box 2 d world origin
         _renderer->SetOrigin({float(ScreenWidth())/2.0f, float(ScreenHeight())/2.0f});
-        _renderer->SetProjection({ 1,-1 });
+        // OLC starts top left, box 2 d y-axis is upwards though
+        _renderer->SetProjection({ 1.0,-1.0 });
+        // How many pixels per meter?
+        _renderer->SetZoom(8.0f);
 
         _gravity.Set(0.0f, -10.0f);
         _b2d_world = new b2World(_gravity);
@@ -31,23 +36,19 @@ namespace B2DOLC
 
         // Create Simple L-shaped world
         GameObject* obj;
-        obj = new Brick(_b2d_world, { -60.0,-60.0f }, false);
+        obj = new Brick(_b2d_world, { 0.0, 0.0 }, 20.0, 1.0f);
         AddObject(obj);
-        obj = new Brick(_b2d_world, { -20.0,-60.0f }, false);
-        AddObject(obj);
-        obj = new Brick(_b2d_world, { 20.0,-60.0f }, false);
-        AddObject(obj);
-        obj = new Brick(_b2d_world, { 60.0,-60.0f }, false);
-        AddObject(obj);
-        obj = new Brick(_b2d_world, { 70.0,-30.0f }, true);
-        AddObject(obj);
-        obj = new Brick(_b2d_world, { 70.0,10.0f }, true);
-        AddObject(obj);
-        obj = new Brick(_b2d_world, { 70.0,50.0f }, true);
+        obj = new Brick(_b2d_world, { 5.0, 10.0 }, 5.0f, 2.0f);
         AddObject(obj);
 
-        obj = new Player(_b2d_world, { -40.0,-20.0f });
+        obj = new Player(_b2d_world, { 0.0 , 10.0f });
         AddObject(obj);
+        _player = (Player*) obj;
+
+        for (auto object : _game_objects)
+        {
+            object->OnGameCreation(this);
+        }
 
         return true;
     }
@@ -56,6 +57,15 @@ namespace B2DOLC
     {
         Clear(olc::DARK_BLUE);
 
+        for (auto object : _game_objects)
+        {
+            object->OnUserInput(fElapsedTime, this, _b2d_world);
+        }
+
+        if (_player->destroy)
+        {
+            DrawString(100, 100, "You died!", olc::BLACK, 2);
+        }
         //if (GetMouse(0).bPressed)
         //{
         //    b2Vec2 pos = _renderer->ToWorld({ float(GetMouseX()), float(GetMouseY()) });
@@ -107,7 +117,21 @@ namespace B2DOLC
             _renderer->Draw(object);
         }
 
-        DrawString(20,20,"Hello World");
+        // Print Player info:
+        {
+            std::stringstream ss;
+            ss << "Player: " << (_player ? "Alive" : "Dead");
+            ss << "\n";
+            if (_player)
+            {
+                ss << "Pos: X: " << _player->body->GetWorldPoint({ 0,0 }).x;
+                ss << " Y: " << _player->body->GetWorldPoint({ 0,0 }).y;
+                ss << "\n";
+                ss << "Flying Power: " << _player->GetFlyingPower();
+                ss << "\n";
+            }
+            DrawString(20, 20, ss.str());
+        }
 
         return true;
     }

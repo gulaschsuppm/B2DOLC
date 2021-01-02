@@ -16,12 +16,15 @@ namespace B2DOLC
         void SetPGE(olc::PixelGameEngine* pge) { _pge = pge; }
         void SetOrigin(const olc::vf2d& origin) { _world_origin = origin; _b2vec_wo.Set(origin.x, origin.y); }
         void SetProjection(const olc::vf2d& projection) { _world_projection = projection; _b2vec_pro.Set(projection.x, projection.y); }
+        void SetZoom(float zoom) { _world_zoom = zoom; }
+
     private:
         void DrawPolygon(GameObject* body, b2PolygonShape* shape);
         void DrawCircle(GameObject* body, b2CircleShape* circle);
 
         olc::vf2d _world_origin;
         olc::vf2d _world_projection;
+        float _world_zoom;
         b2Vec2 _b2vec_wo;
         b2Vec2 _b2vec_pro;
         olc::PixelGameEngine* _pge;

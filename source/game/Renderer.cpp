@@ -41,14 +41,18 @@ namespace B2DOLC
     {
         olc::vf2d world_vec(vec.x, vec.y);
 
-        return (_world_origin + world_vec * _world_projection);
+        // Flip, zoom and then add the origin
+        auto screen_vec = (world_vec * _world_projection) * _world_zoom + _world_origin;
+
+        return screen_vec;
     }
 
     b2Vec2 Renderer::ToWorld(const olc::vf2d& vec) const
     {
-        b2Vec2 screen_vec((vec.x - _world_origin.x) * _world_projection.x, (vec.y - _world_origin.y) * _world_projection.y);
+        // From origin, zoom then flip
+        auto world_vec = ((vec - _world_origin) * (1/_world_zoom)) * _world_projection;
 
-        return screen_vec;
+        return b2Vec2(world_vec.x, world_vec.y);
     }
 
     void Renderer::DrawPolygon(GameObject* game_object, b2PolygonShape* shape)

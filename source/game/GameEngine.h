@@ -3,6 +3,7 @@
 #include "box2d/box2d.h"
 #include "Renderer.h"
 #include "GameResources.h"
+#include "Player.h"
 
 namespace B2DOLC
 {
@@ -22,6 +23,8 @@ namespace B2DOLC
         b2Vec2 _gravity;
         b2World* _b2d_world;
         Renderer* _renderer;
+
+        Player* _player;
 
         std::list<GameObject*> _game_objects;
     };
